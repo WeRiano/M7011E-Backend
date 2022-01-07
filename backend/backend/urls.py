@@ -6,5 +6,5 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('ping/', views.ping),
-    path('auth/', include('authapp.urls'))
+    path('api/version/1/', include('authapp.urls'))
 ]

@@ -94,13 +94,13 @@ def set_house_img(request):
     img_type = data['type']
     img_data = base64.b64decode(enc_img)
 
-    old_file_path = MEDIA_ROOT + '\\' + str(request.user.house_img)
+    old_file_path = MEDIA_ROOT + '/' + str(request.user.house_img)
 
     # FOR SOME REASON DJANGO DOESNT OVERWRITE EXISTING FILES
     # hence this is not actually the real new file name.
     # The real file name is new_file_name + some hash! Thanks django!
     new_file_name = str(request.user.id) + '_prof_pic.' + img_type
-    new_file_path = MEDIA_ROOT + '\\' + new_file_name
+    new_file_path = MEDIA_ROOT + '/' + new_file_name
 
     # We create a temporary file so we can write data (given by the frontend) to it
     file_write = File(open(new_file_path, 'wb'))
@@ -115,7 +115,7 @@ def set_house_img(request):
     os.remove(new_file_path)
 
     # We also delete the old file as long as its not the static default picture
-    if old_file_path != MEDIA_ROOT + '\\' + 'default_prof_pic.jpeg':
+    if old_file_path != MEDIA_ROOT + '/' + 'default_prof_pic.jpeg':
         os.remove(old_file_path)
     return Response(status=status.HTTP_202_ACCEPTED)
 
@@ -125,5 +125,5 @@ def set_house_img(request):
 def get_house_img(request):
     file = request.user.house_img
     img_type = file.name.split('.')[1]
-    img = open(MEDIA_ROOT + '\\' + file.name, 'rb')
+    img = open(MEDIA_ROOT + '/' + file.name, 'rb')
     return FileResponse(img, content_type='image/' + img_type)

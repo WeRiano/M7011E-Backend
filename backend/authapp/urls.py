@@ -1,5 +1,5 @@
 from django.urls import path, include
-from authapp import views
+from . import views
 
 urlpatterns = [
     path('users/get_image/', views.get_house_img),
