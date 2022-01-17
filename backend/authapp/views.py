@@ -80,6 +80,9 @@ def get_profile(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_id(request):
+    os.getcwd()
+    os.listdir() 
+
     response = {
         "user_id": request.user.id
     }
