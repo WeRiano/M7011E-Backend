@@ -2,6 +2,7 @@ FROM python:3.9-alpine3.13 as backend
 LABEL maintainer="m7011e"
 
 ENV PYTHONUNBUFFERED 1
+ENV DJANGO_SETTINGS_MODULE backend.settings
 
 COPY ./requirements.txt /app/requirements.txt
 COPY ./backend /app/backend
