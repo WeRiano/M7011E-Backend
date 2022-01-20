@@ -10,11 +10,13 @@ import os
 import re
 
 from backend.settings import MEDIA_ROOT
+from .models import User
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
+    user = request.user
     data = json.loads(request.body)
     email = data['email']
     first_name = data['first_name']
@@ -23,25 +25,39 @@ def update_profile(request):
     city = data['city']
     zip_code = data['zip_code']
 
+    response = {}
+    error = False
+
     email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     if not re.fullmatch(email_regex, email):
-        response = {
-            "email": "Enter a valid email address."
-        }
-        return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
+        response["email"] = "Enter a valid email address."
+        error = True
     try:
         if int(zip_code) < 10000 or int(zip_code) >= 90000:
-            response = {
-                "email": "Enter a valid email address."
-            }
-            return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
+            response["zip_code"] = "Enter a valid zipcode, an integer on the interval [10000, 99000)."
+            error = True
     except ValueError:
-        response = {
-            "zip_code": "A valid integer is required."
-        }
+        response["zip_code"] = "A valid integer is required."
+        error = True
+    if len(email) > User.EMAIL_MAX_LENGTH:
+        response["email"] = "Enter a valid email address length (not more than " + str(User.EMAIL_MAX_LENGTH) + " characters)."
+        error = True
+    if len(first_name) > User.FIRST_NAME_MAX_LENGTH:
+        response["first_name"] = "Enter a valid first name length (not more than " + str(User.FIRST_NAME_MAX_LENGTH) + " characters)."
+        error = True
+    if len(last_name) > User.LAST_NAME_MAX_LENGTH:
+        response["last_name"] = "Enter a valid last name length (not more than " + str(User.LAST_NAME_MAX_LENGTH) + " characters)."
+        error = True
+    if len(address) > User.ADDRESS_MAX_LENGTH:
+        response["address"] = "Enter a valid address length (not more than " + str(User.ADDRESS_MAX_LENGTH) + " characters)."
+        error = True
+    if len(city) > User.CITY_MAX_LENGTH:
+        response["city"] = "Enter a valid city length (not more than " + str(User.CITY_MAX_LENGTH) + " characters)."
+        error = True
+
+    if error:
         return Response(data=response, status=status.HTTP_400_BAD_REQUEST)
 
-    user = request.user
     user.email = email
     user.first_name = first_name
     user.last_name = last_name

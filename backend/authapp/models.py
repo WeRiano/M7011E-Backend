@@ -43,12 +43,22 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+    def update(self, email, password=None, **extra_fields):
+        user = self.model()
+
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    # Constants
+    EMAIL_MAX_LENGTH = 255
+    FIRST_NAME_MAX_LENGTH = 30
+    LAST_NAME_MAX_LENGTH = 150
+    ADDRESS_MAX_LENGTH = 100
+    CITY_MAX_LENGTH = 40
+
     email = models.EmailField(
         unique=True,
-        max_length=255,
+        max_length=EMAIL_MAX_LENGTH,
         blank=False,
     )
 
@@ -56,12 +66,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     # from `AbstractUser`
     first_name = models.CharField(
         _('first name'),
-        max_length=30,
+        max_length=FIRST_NAME_MAX_LENGTH,
         blank=True,
     )
     last_name = models.CharField(
         _('last name'),
-        max_length=150,
+        max_length=LAST_NAME_MAX_LENGTH,
         blank=True,
     )
     is_staff = models.BooleanField(
@@ -88,8 +98,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # Add additional fields here if needed
 
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=40)
+    address = models.CharField(max_length=ADDRESS_MAX_LENGTH)
+    city = models.CharField(max_length=CITY_MAX_LENGTH)
     zip_code = models.IntegerField(validators=[MinValueValidator(10000, "ZIP code does not exist"),
                                                MaxValueValidator(98999, "ZIP code does not exist")])
     house_img = models.ImageField(upload_to='', max_length=25, default='default_prof_pic.jpeg')
