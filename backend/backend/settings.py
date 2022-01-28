@@ -28,13 +28,7 @@ SECRET_KEY = str(os.environ.get('DJANGO_SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get('DEBUG', 0)))
 
-ALLOWED_HOSTS = []
-ALLOWED_HOSTS.extend(
-    filter(
-        None,
-        os.environ.get('ALLOWED_HOSTS', '').split(', ')
-    )
-)
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -51,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'corsheaders',
-    
+
     'authapp',
 ]
 
@@ -67,11 +61,6 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGINS = [
-    "http://" + os.environ.get("FRONTEND_IP", "127.0.0.1") + ":8001",
-    "http://" + os.environ.get("SIMULATION_IP", "127.0.0.1") + ":8000"
-]
 
 CORS_ALLOWED_METHODS = [
     'GET',
@@ -115,7 +104,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 database_type = str(os.environ.get("DB_TYPE", "POSTGRES"))
-#print("BACKEND DATABASE TYPE: " + database_type)
 
 if database_type == "SQLITE":
     DATABASES = {
@@ -163,7 +151,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-#APPEND_SLASH = False
 AUTH_USER_MODEL = 'authapp.User'
 
 DJOSER = {
@@ -196,7 +183,6 @@ STATIC_URL = 'static/'
 MEDIA_URL = 'images/'
 
 MEDIA_ROOT = 'static/images'
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
