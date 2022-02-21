@@ -1,4 +1,5 @@
 from django.core.files import File
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import FileResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,7 +12,6 @@ import re
 
 from backend.settings import MEDIA_ROOT
 from .models import User
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -78,10 +78,64 @@ def update_profile(request):
     return Response(data=response, status=status.HTTP_202_ACCEPTED)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def admin_delete_user(request, user_id):
+    if not request.user.is_superuser:
+        result = {
+            "Error": "This endpoint requires admin status."
+        }
+        return Response(data=result, status=status.HTTP_403_FORBIDDEN)
+    try:
+        user = User.objects.get(id=user_id)
+    except ObjectDoesNotExist:
+        result = {
+            "Error": "A user with this id (" + str(user_id) + ") does not exist and can therefore not be deleted."
+        }
+        return Response(data=result, status=status.HTTP_400_BAD_REQUEST)
+    user.delete()
+    result = {
+        "Success": "User with id " + str(user_id) + " successfully deleted."
+    }
+    return Response(data=result, status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_get_all_users(request):
+    if not request.user.is_superuser:
+        result = {
+            "Error": "This endpoint requires admin status."
+        }
+        return Response(data=result, status=status.HTTP_403_FORBIDDEN)
+    users = User.objects.order_by('id')
+
+    users_result = []
+    for user in users:
+        if user.is_superuser:
+            continue
+        user_dic = {
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "address": user.address,
+            "city": user.city,
+            "zip_code": user.zip_code
+        }
+        users_result.append(user_dic)
+
+    result = {
+        "users": users_result
+    }
+    return Response(data=result, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile(request):
     result = {
+        "admin": request.user.is_superuser,
         'id': request.user.id,
         'email': request.user.email,
         'first_name': request.user.first_name,
